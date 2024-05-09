@@ -56,7 +56,7 @@ const TodoTemplate = () => {
     // setTodos(newTodo); (x)
     // react의 상태변수는 불변성(immutable)을 가지기 때문에
     // 기존 상태에서 변경을 불가능 -> 새로운 상태로 만들어서 변경해야 함.
-    // setTodos([...todos, newTodo]); (ㅇ)
+    // setTodos([...todos, newTodo]); (o)
     setTodos((oldTodos) => {
       return [...oldTodos, newTodo];
     });
@@ -70,10 +70,35 @@ const TodoTemplate = () => {
     setTodos(todos.filter((todo) => todo.id !== id));
   };
 
+  // 할 일 체크 처리 함수
+  const checkTodo = (id) => {
+    const copyTodos = [...todos];
+    /*
+    for (let cTodo of copyTodos) {
+      if (cTodo.id === id) {
+        cTodo.done = !cTodo.done;
+      }
+    }
+    setTodos(copyTodos); */
+
+    setTodos(
+      todos.map((todo) =>
+        todo.id === id ? { ...todo, done: !todo.done } : todo,
+      ),
+    );
+  };
+
+  // 체크가 안된 할 일의 개수를 카운트 하기
+  const countRestTodo = () => todos.filter((todo) => !todo.done).length;
+  // {
+  // const filteredTodos = todos.filter((todo) => !todo.done);
+  // return filteredTodos.length;
+  // };
+
   return (
     <div className='TodoTemplate'>
-      <TodoHeader />
-      <TodoMain todoList={todos} remove={removeTodo} />
+      <TodoHeader count={countRestTodo} />
+      <TodoMain todoList={todos} remove={removeTodo} check={checkTodo} />
       <TodoInput addTodo={addTodo} />
     </div>
   );
