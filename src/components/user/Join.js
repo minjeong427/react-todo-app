@@ -5,11 +5,11 @@ import {
   Grid,
   TextField,
   Typography,
-  debounce,
 } from '@mui/material';
 import React, { useCallback, useReducer } from 'react';
 import { API_BASE_URL, USER } from '../../config/host-config';
 import { initialState, joinReducer } from './joinReducer';
+import { debounce } from 'lodash';
 import { useNavigate } from 'react-router-dom';
 
 const Join = () => {
@@ -25,10 +25,36 @@ const Join = () => {
   // 각각의 핸들러에서 호출하는 dispatch 처리를 중앙화 하자.
   const updateState = (key, inputValue, msg, flag) => {
     key !== 'passwordCheck' &&
-      dispatch({ type: 'SET_USER_VALUE', key, value: inputValue });
-    dispatch({ type: 'SET_MESSAGE', key, value: msg });
-    dispatch({ type: 'SET_CORRECT', key, value: flag });
+      dispatch({
+        type: 'SET_USER_VALUE',
+        key,
+        value: inputValue,
+      });
+    dispatch({
+      type: 'SET_MESSAGE',
+      key,
+      value: msg,
+    });
+    dispatch({
+      type: 'SET_CORRECT',
+      key,
+      value: flag,
+    });
   };
+
+  // 각각의 핸들러에 붙어 있는 디바운스 함수를 일괄적 처리
+  // useCallback: 함수의 메모이제이션을 위한 훅. (함수의 선언을 기억했다가 재사용하기 위한 훅)
+  // 상태값 변경에 의해 화면의 재 렌더링이 발생할 때, 컴포넌트의 함수들도 재 선언이 됩니다.
+  // useCallback으로 함수를 감싸 주시면 이전에 생성된 함수를 기억했다가 재 사용하도록 하기 때문에
+  // 불필요한 함수 선언을 방지할 수 있습니다. (성능 최적화에 도움이 됩니다.)
+  const debouncedUpdateState = useCallback(
+    debounce((key, inputValue, msg, flag) => {
+      console.log('debounce called! key: ', key);
+      updateState(key, inputValue, msg, flag);
+    }, 500),
+    [],
+  ); // 의존성 배열을 비워놓으면, 첫 렌더링 때 함수가 선언되고 다시는 재선언되지 않습니다.
+  // 만약 함수의 선언이 특정 상태가 변할 때 재선언 되어야 한다면, 의존성 배열에 상태 변수를 선언하시면 됩니다.
 
   // 이름 입력창 체인지 이벤트 핸들러
   const nameHandler = (e) => {
@@ -37,7 +63,7 @@ const Join = () => {
     const nameRegex = /^[가-힣]{2,5}$/;
 
     // 입력값 검증
-    let msg; // 검증 메시지를 저장할 변수
+    let msg; // 검증 메세지를 저장할 변수
     let flag = false; // 입력값 검증 여부 체크 변수
 
     if (!inputValue) {
@@ -67,23 +93,9 @@ const Join = () => {
           msg = '사용 가능한 이메일 입니다.';
           flag = true;
         }
-
         debouncedUpdateState('email', email, msg, flag);
       });
   };
-
-  // 각각의 핸들러에 붙어 있는 디바운스 함수를 일괄적으로 처리
-  // useCallback: 함수의 메모리제이션을 위한 훅. (함수의 선언을 기억했다가 재사용하기 위한 훅)
-  // 상태값 변경에 의해 화면의 재 렌더링이 발생할 때, 컴포넌트의 함수들도 재 선언이 됩니다.
-  // useCallback으로 함수를 감싸주면 이전에 생성된 함수를 기억했다가 재사용하도록 하기 때문에
-  // 불필요한 함수 선언을 방지할 수 있습니다. (성능 최적화에 도움이 됩니다.)
-  const debouncedUpdateState = useCallback(
-    debounce((key, inputValue, msg, flag) => {
-      updateState(key, inputValue, msg, flag);
-    }, 500),
-    [],
-  ); // 의존성 배열을 비워놓으면, 첫 렌더링 때 함수가 선언되고 다시는 재선언되지 않습니다.
-  // 만약 함수의 선언이 특정 상태가 변할 때 재선언되어야 한다면, 의존성 배열에 상태 변수를 선언하면 됩니다.
 
   // 이메일 입력창 체인지 이벤트 핸들러
   const emailHandler = (e) => {
@@ -111,8 +123,8 @@ const Join = () => {
     const inputValue = e.target.value;
     // 패스워드가 변경됐다? -> 패스워드 확인란도 초기화 시킨다.
     document.getElementById('password-check').value = '';
-
     updateState('passwordCheck', '', '', false);
+
     const pwRegex =
       /^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*#?&])[A-Za-z\d$@$!%*#?&]{8,20}$/;
 
@@ -145,7 +157,7 @@ const Join = () => {
       flag = true;
     }
 
-    debouncedUpdateState('passwordCheck', 'pass', msg, 'flag');
+    debouncedUpdateState('passwordCheck', 'pass', msg, flag);
   };
 
   // 4개의 입력창이 모두 검증에 통과했는지 여부를 검사
@@ -159,7 +171,7 @@ const Join = () => {
 
   // 회원 가입 처리 서버 요청
   const fetchSignUpPost = () => {
-    fetch(`${API_BASE_URL}&{USER}`, {
+    fetch(`${API_BASE_URL}${USER}`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify(userValue),
@@ -182,7 +194,7 @@ const Join = () => {
     e.preventDefault();
 
     if (isValid()) {
-      // fetch를 사용한 회원가입 요청.
+      // fetch를 사용한 회원 가입 요청.
       fetchSignUpPost();
     } else {
       alert('입력란을 다시 확인해 주세요!');
@@ -287,7 +299,7 @@ const Join = () => {
         <Grid container justify='flex-end'>
           <Grid item>
             <Link href='/login' variant='body2'>
-              이미 계정이 있습니까? 로그인하기
+              이미 계정이 있습니까? 로그인 하세요.
             </Link>
           </Grid>
         </Grid>
