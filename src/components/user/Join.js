@@ -193,7 +193,7 @@ const Join = () => {
     });
 
     // 이미지 파일과 회원정보 JSON을 하나로 묶어서 보낼 예정.
-    // FormData 객체를 활용.
+    // FormData 객체를 활용해서.
     const userFormData = new FormData();
     userFormData.append('user', userJsonBlob);
     userFormData.append('profileImage', $fileTag.current.files[0]);
@@ -242,10 +242,9 @@ const Join = () => {
       fileExt !== 'jpeg' &&
       fileExt !== 'gif'
     ) {
-      alert('이미지 파일(jpg, png, jpeg, gif)만 등록이 가능합니다!!');
-
-      // 형식에 맞지 않는 파일을 첨부한 것이 파악됐다면 input의 상태도 원래대로 돌려놓아야 합니다.
-      // 그렇지 않으면 잘못된 파일을 input 태그가 여전히 기억하게 됩니다. -> 서버 요청 시 에러 유발!
+      alert('이미지 파일(jpg, png, jpeg, gif)만 등록이 가능합니다!');
+      // 형식에 맞지 않는 파일을 첨부한 것이 파악됐다면, input의 상태도 원래대로 돌려놓아야 한다.
+      // 그렇지 않으면 잘못된 파일을 input 태그가 여전히 기억하게 됨 -> 서버 요청 시 에러 유발!
       $fileTag.current.value = '';
       return;
     }
@@ -378,7 +377,7 @@ const Join = () => {
         <Grid container justify='flex-end'>
           <Grid item>
             <Link href='/login' variant='body2'>
-              이미 계정이 있습니까? 로그인
+              이미 계정이 있습니까? 로그인 하세요.
             </Link>
           </Grid>
         </Grid>

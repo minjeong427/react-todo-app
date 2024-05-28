@@ -10,7 +10,9 @@ const TodoHeader = ({ count, promote }) => {
     day: 'numeric',
   });
 
-  const dayName = today.toLocaleDateString('ko-KR', { weekday: 'long' });
+  const dayName = today.toLocaleDateString('ko-KR', {
+    weekday: 'long',
+  });
 
   const upgrade = () => {
     if (window.confirm('프리미엄으로 업그레이드 하시겠습니까?')) {
@@ -21,8 +23,7 @@ const TodoHeader = ({ count, promote }) => {
   // 회원 등급에 따른 조건별 렌더링
   const gradeView = () => {
     const role = localStorage.getItem('USER_ROLE');
-    console.log('TodoHeader -> rold: ', role);
-
+    console.log('TodoHeader -> role: ', role);
     if (role === 'COMMON') {
       return (
         <span className='promote badge bg-warning' onClick={upgrade}>
@@ -30,7 +31,7 @@ const TodoHeader = ({ count, promote }) => {
         </span>
       );
     } else if (role === 'PREMIUM') {
-      return <span className='promote badge bg-danger'>프리미엄회원</span>;
+      return <span className='promote badge bg-danger'>프리미엄</span>;
     } else if (role === 'ADMIN') {
       return <span className='promote badge bg-info'>관리자</span>;
     }

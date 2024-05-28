@@ -15,7 +15,7 @@ const Footer = () => {
         marginTop: '100px',
       }}
     >
-      copyright. 2024 have a nice day!!
+      copyright. 2024 have a nice day~!!
     </footer>
   );
 };
